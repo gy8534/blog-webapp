@@ -1,0 +1,29 @@
+<%- include('../partials/navbar') %>
+<div class="container">
+  <form action="/me/add" method="POST">
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">@</span>
+      </div>
+      <input
+        type="text"
+        class="form-control"
+        name="title"
+        placeholder="title"
+        aria-label="Username"
+        aria-describedby="basic-addon1"
+      />
+    </div>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Body</span>
+      </div>
+      <textarea
+        class="form-control"
+        aria-label="With textarea"
+        name="body"
+      ></textarea>
+    </div>
+    <button type="submit" value="Save" class="btn btn-success">Save</button>
+  </form>
+</div>

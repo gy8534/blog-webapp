@@ -1,0 +1,27 @@
+<%- include('../partials/navbar') %>
+
+<div class="container">
+  <h1>Blogs by <%= blogs[0].user.name%></h1>
+  <% if (blogs.length > 0) {%>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Title</th>
+        <th scope="col">Created At</th>
+        <th scope="col">Author</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% blogs.forEach((blog) => { %>
+      <tr>
+        <td><a href="/blogs/<%= blog._id%>"><%= blog.title %></a></td>
+        <td><%= blog.createdAt %></td>
+        <td><a href="/blogs/user/<%= blog.user._id%>"><%= blog.user.name %></a></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% } else {%>
+  <p>you have not created any blogs</p>
+  <% } %>
+</div>
