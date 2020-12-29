@@ -1,0 +1,81 @@
+<%- include('../partials/navbar') %>
+<div class="container">
+  <h3 class="mt-5">Add Story</h3>
+  <div class="row">
+    <form action="/blogs/create" method="POST" class="col-lg-12">
+      <div class="col-lg-12 col-sm-12">
+        <div class="form-group">
+          <input
+            type="text"
+            placeholder="Title"
+            class="form-control"
+            name="title"
+            value="<%= blog.title%>"
+          />
+        </div>
+      </div>
+      <div class="col-lg-12 col-sm-12">
+        <div class="form-group">
+          <input
+            type="text"
+            placeholder="current we dont't support image upload, Paste URL here"
+            class="form-control"
+            name="imageURL"
+            value="<%= blog.imageURL%>"
+          />
+        </div>
+      </div>
+      <div class="col-lg-12 col-sm-12">
+        <div class="form-group">
+          <select class="form-control" name="tag">
+            <option disabled>Select Tag</option>
+            <option
+                <% if (blog.tag === "Culture") {%>
+                    <%= 'selected'%>
+                <%}%>
+                value="Culture">
+                Culture
+            </option>
+            <option 
+            <% if (blog.tag === "Fashion") {%>
+                <%= 'selected'%>
+            <%}%>
+            value="Fashion">Fashion</option>
+            <option 
+            <% if (blog.tag === "Health") {%>
+                <%= 'selected'%>
+            <%}%>
+            value="Health">Health</option>
+            <option 
+            <% if (blog.tag === "Science") {%>
+                <%= 'selected'%>
+            <%}%>
+            value="Science">Science</option>
+            <option 
+            <% if (blog.tag === "Tech") {%>
+                <%= 'selected'%>
+            <%}%>
+            value="Tech">Tech</option>
+            <option 
+            <% if (blog.tag === "Travel") {%>
+                <%= 'selected'%>
+            <%}%>
+            value="Travel">Travel</option>
+          </select>
+        </div>
+      </div>
+      
+      
+      <div class="col-lg-12 col-sm-12">
+        <div class="form-group">
+            <textarea id="body" name="body"><%= blog.body%></textarea>
+        </div>
+      </div>
+
+      <div class="row mt-5">
+        <input type="submit" value="Update" class="btn" />
+        <a href="/" class="btn orange">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

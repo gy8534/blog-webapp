@@ -1,97 +1,87 @@
-const epxress = require('express');
+const epxress = require("express");
 const router = epxress.Router();
-const bcrypt = require('bcryptjs');
-const passport = require('passport');
-const { ensureGuest } = require('../config/auth');
 
-const User = require('../models/User');
+const User = require("../models/User");
+const Blog = require("../models/Blog");
 
-router.get('/', ensureGuest, (req, res) => {
-    res.render('welcome');
-})
+router.get("/", async (req, res) => {
+  try {
+    let blogs = await Blog.find({})
+      .populate("user")
+      .sort({ createdAt: "desc" })
+      .lean();
 
-router.get('/login', ensureGuest, (req, res) => {
-    res.render('login');
-})
-router.post('/login', (req, res, next) => {
-    passport.authenticate('local', {
-      successRedirect: '/blogs',
-      failureRedirect: '/login',
-      failureFlash: true
-    })(req, res, next);
-  });
+    let featured = await Blog.find({})
+      .populate("user")
+      .sort({ createdAt: "desc" })
+      .lean();
 
+    featured = featured
+      .sort((a, b) => {
+        return b.visits - a.visits;
+      })
+      .slice(0, 3);
 
-router.get('/sign-up', ensureGuest, (req, res) => {
-    res.render('sign-up');
-}) 
-router.post('/sign-up', (req, res) => {
-    const { name, email, password, password2 } = req.body;
-    let errors = [];
+    blogs = blogs.slice(0, 10);
 
-    if (!name || !email || !password || !password2){
-        errors.push({msg: 'Please fill all the fields'});
-    }
+    res.render("welcome", {
+      blogs,
+      featured,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send("error/500");
+  }
+});
 
-    else if (password != password2){
-        errors.push({msg: 'Password do not macth'});
-    }
+router.get("/more_stories", async (req, res) => {
+  try {
+    let blogs = await Blog.find({})
+      .populate("user")
+      .sort({ createdAt: "desc" })
+      .lean();
+    res.render("blogs/all", {
+      blogs,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send("error");
+  }
+});
 
-    else if (password.length <6 ){
-        errors.push({msg: 'Password should be at least 6 characters'});
-    }
+router.get("/:id", async (req, res) => {
+  try {
+    await Blog.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { visits: 1 } },
+      { new: true }
+    );
+    const blog = await Blog.findById(req.params.id)
+      .populate('user')
+      .sort({ createdAt: "desc" })
+      .lean();
+    res.render("blogs/blog", {
+      blog,
+    });
+  } catch (err) {
+    res.send("error/500");
+  }
+});
 
-    if (errors.length > 0){
-        res.render('sign-up', {
-            errors,
-            name,
-            email,
-            password,
-            password2
-        });
-    } else {
-        // Validation passed
-        User.findOne({email: email})
-            .then(user => {
-                if (user) {
-                    errors.push({msg: 'This email is already registered.'})
-                    res.render('sign-up', {
-                        errors,
-                        name,
-                        email,
-                        password,
-                        password2
-                    });
-                } else {
-                    const newUser = new User({
-                        name,
-                        email,
-                        password
-                    });
-                    bcrypt.genSalt(10, function(err, salt) {
-                        bcrypt.hash(newUser.password, salt, function(err, hash) {
-                            // Store hash in your password DB.
-                            if (err) throw err;
-                            newUser.password = hash;
-                            newUser.save()
-                                .then(user => {
-                                    req.flash('success_msg', 'You are registered, Please login.')
-                                    res.redirect('/login')
-                                })
-                                .catch(err => console.log(err))
-                        });
-                    });
-                    
-                }
-            });
-    }
-}) 
-
-router.use('/logout', (req, res) => {
-    req.logOut();
-    req.flash('success_msg', 'You are logged out!');
-    res.redirect('/login');
-})
-
+router.get("/tags/:tag", async (req, res) => {
+  try {
+    let blogs = await Blog.find({ tag: req.params.tag })
+      .populate("user")
+      .sort({ createdAt: "desc" })
+      .lean();
+    res.render("blogs/tag", {
+      tag: req.params.tag,
+      blogs,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send("error");
+  }
+});
 
 module.exports = router;

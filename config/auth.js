@@ -5,13 +5,13 @@ module.exports = {
         }
 
         req.flash('error', 'Please login to view');
-        res.redirect('/login')
+        res.redirect('/users/login')
     },
 
     ensureGuest: function (req, res, next) {
         if (!req.isAuthenticated()) {
           return next();
         }
-        res.redirect("/blogs");
+        res.redirect("/");
       },
 }

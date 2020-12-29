@@ -1,58 +1,92 @@
 const epxress = require("express");
-const { ensureAuthenticated } = require("../config/auth");
-
 const router = epxress.Router();
 
+const { ensureAuthenticated } = require("../config/auth");
+
 const Blog = require("../models/Blog");
+const User = require("../models/User");
 
-router.get("/", ensureAuthenticated, async (req, res) => {
+router.get("/create", ensureAuthenticated, (req, res) => {
+  res.render("blogs/createBlog", {});
+});
+
+router.post("/create", ensureAuthenticated, async (req, res) => {
   try {
-    const blogs = await Blog.find({})
-      .populate("user")
-      .sort({ createdAt: "desc" })
-      .lean();
-    res.render("blog/allBlogs", {
-      name: req.user.name,
-      blogs,
-    });
+    req.body.user = req.user.id;
+    await Blog.create(req.body);
+    req.flash("success_msg", "Viral Created!!");
+    res.redirect("/");
   } catch (err) {
     console.log(err);
-    res.render("error/500");
+    res.send("error 500");
+  }
+});
+router.get("/edit/:id",ensureAuthenticated, async(req, res) => {
+  try {
+    const blog = await Blog.findOne({
+      _id: req.params.id,
+    }).lean()
+
+    if (!blog) {
+      return res.send('error/404')
+    }
+
+    if (blog.user != req.user.id) {
+      res.redirect('/')
+    } else {
+      res.render('blogs/edit', {
+        blog,
+      })
+    }
+  } catch (err) {
+    console.error(err)
+    return res.send('error/500')
   }
 });
 
-router.get("/:id", ensureAuthenticated, async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
-    const blog = await Blog.findOne({ _id: req.params.id})
-      .populate("user")
-      .lean();
-    res.render("blog/oneBlog", {
-      name: req.user.name,
-      blog,
-    });
-  } catch (err) {
-    console.log(err);
-    res.render("error/500");
-  }
-  
-});
+    let story = await Story.findById(req.params.id).lean()
 
-router.get("/user/:id", ensureAuthenticated, async (req, res) => {
+    if (!story) {
+      return res.render('error/404')
+    }
+
+    if (story.user != req.user.id) {
+      res.redirect('/stories')
+    } else {
+      story = await Story.findOneAndUpdate({ _id: req.params.id }, req.body, {
+        new: true,
+        runValidators: true,
+      })
+
+      res.redirect('/dashboard')
+    }
+  } catch (err) {
+    console.error(err)
+    return res.render('error/500')
+  }
+})
+
+router.get("/delete/:id",  ensureAuthenticated, async (req, res) => {
   try {
-    const blogs = await Blog.find({ user: req.params.id})
-      .populate("user")
-      .lean();
-    res.render("blog/userBlog", {
-      name: req.user.name,
-      blogs,
-    });
+    let blog = await Blog.findById(req.params.id).lean()
+
+    if (!blog) {
+      return res.render('error/404')
+    }
+
+    if (blog.user != req.user.id) {
+      res.redirect('/')
+    } else {
+      await Blog.remove({ _id: req.params.id })
+      req.flash("success_msg", "Viral Deleted!!");
+      res.redirect('/')
+    }
   } catch (err) {
-    console.log(err);
-    res.render("error/500");
+    console.error(err)
+    return res.render('error/500')
   }
-
 });
-
-
 
 module.exports = router;

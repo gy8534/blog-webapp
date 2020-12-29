@@ -1,0 +1,38 @@
+<%- include('../partials/navbar') %> <%- include('../partials/jumbotron') %>
+<div class="container">
+  <div class="col-sm-9">
+    <h2 class="display-2 mb-0">All Virals</h2>
+  </div>
+    <div class="row">
+        <% blogs.forEach((blog) => {%>
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="card">
+            <a href="/<%=blog._id%>"
+              ><img
+                class="card-img-top"
+                src="<%=blog.imageURL%>"
+                alt="Card image cap"
+            /></a>
+            <div class="card-block">
+              <a href="/<%=blog._id%>">
+                <h6 class="card-title mt-4"><%- truncate(stripTags(blog.title), 50)%></h6>
+              </a>
+              <small class="card-text p-y-1">
+                <%- truncate(stripTags(blog.body), 150)%>
+              </small>
+              <div class="d-flex justify-content-between mt-2">
+                <a href="/users/<%=blog.user._id%>">
+                  <h6 class="text-muted"><%= blog.user.name%></h6>
+                </a>
+                <a href="/tags/<%= blog.tag%>">
+                  <span class="badge badge-pill badge-warning text-uppercase"><%= blog.tag%></span>
+                </a>
+              </div>
+              <small><%= formatDate(blog.createdAt, 'MMM Do YYYY, h:mm a')%></small>
+            </div>
+          </div>
+        </div>
+        <% });%>
+      </div>
+      <%- include('../partials/footer') %>
+</div>

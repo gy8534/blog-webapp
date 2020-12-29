@@ -1,0 +1,18 @@
+<%- include('../partials/navbar') %>
+<%- include('../partials/jumbotron') %>
+<div class="container mt-5">
+    <div class="col-sm-9">
+        <h2 class="display-2 mb-0"><%=blog.title%></h2>
+      </div>
+      <hr>
+    <img src="<%=blog.imageURL%>" class="img-fluid" alt="Responsive image">
+    <hr>
+    <div class="col-sm-9">
+        <h4 class="display-4 mb-0">By <a href="/users/<%=blog.user._id%>"><%=blog.user.name%></a> <small><%= formatDate(blog.createdAt, 'MMM Do YYYY, h:mm a')%></small></h4>
+      </div>
+
+    <div class="mt-5">
+        <%- blog.body%>
+    </div>
+    <%- include('../partials/footer') %>
+</div>
